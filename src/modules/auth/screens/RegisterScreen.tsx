@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
@@ -10,7 +9,6 @@ import {
   Text, TextInput, TouchableOpacity,
   View
 } from 'react-native'
-import { supabase } from '../../../lib/supabaseClient'
 import { registerSchema } from '../schemas/authSchema'
 import { register } from '../services/authService'
 
@@ -78,12 +76,6 @@ export default function RegisterScreen() {
     }
   }
 
-  const handleClearSession = async () => {
-    await supabase.auth.signOut()
-    await AsyncStorage.clear()
-    router.replace('/')
-  }
-
   return (
     <LinearGradient colors={['#080C14', '#0D1520', '#080C14']} style={styles.gradient}>
       <KeyboardAvoidingView
@@ -95,7 +87,6 @@ export default function RegisterScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
           <Animated.View style={[styles.header, {
             opacity: headerAnim,
             transform: [{ translateY: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] }) }]
@@ -110,7 +101,6 @@ export default function RegisterScreen() {
             <Text style={styles.subtitle}>Únete a Nexo hoy</Text>
           </Animated.View>
 
-          {/* Form con shake */}
           <Animated.View style={[styles.form, { transform: [{ translateX: shakeAnim }] }]}>
 
             <Animated.View style={[styles.inputWrapper, makeFieldStyle(field1Anim)]}>
@@ -159,7 +149,6 @@ export default function RegisterScreen() {
               )}
             </Animated.View>
 
-            {/* Botón principal */}
             <Animated.View style={{ opacity: buttonAnim, transform: [{ scale: buttonScale }] }}>
               <TouchableOpacity
                 style={[styles.button, loading && styles.buttonDisabled]}
@@ -188,33 +177,6 @@ export default function RegisterScreen() {
                   ¿Ya tienes cuenta?{' '}
                   <Text style={styles.loginTextAccent}>Inicia sesión</Text>
                 </Text>
-              </TouchableOpacity>
-            </Animated.View>
-
-            {/* Divisor dev */}
-            <Animated.View style={[styles.devDivider, { opacity: buttonAnim }]}>
-              <View style={styles.devDividerLine} />
-              <Text style={styles.devDividerText}>DEV</Text>
-              <View style={styles.devDividerLine} />
-            </Animated.View>
-
-            {/* Botón saltar verificación */}
-            <Animated.View style={{ opacity: buttonAnim }}>
-              <TouchableOpacity
-                style={styles.devBtn}
-                onPress={() => router.replace('/onboarding' as any)}
-              >
-                <Text style={styles.devBtnText}>⚠️ Saltar verificación</Text>
-              </TouchableOpacity>
-            </Animated.View>
-
-            {/* Botón limpiar sesión */}
-            <Animated.View style={{ opacity: buttonAnim }}>
-              <TouchableOpacity
-                style={styles.clearBtn}
-                onPress={handleClearSession}
-              >
-                <Text style={styles.clearBtnText}>⚠️ Limpiar sesión</Text>
               </TouchableOpacity>
             </Animated.View>
 
@@ -273,38 +235,4 @@ const styles = StyleSheet.create({
   loginLink: { alignItems: 'center', marginTop: 20 },
   loginText: { color: '#4A7A9B', fontSize: 14 },
   loginTextAccent: { color: '#00E5FF', fontWeight: '600' },
-  devDivider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 24,
-    marginBottom: 14,
-  },
-  devDividerLine: {
-    flex: 1, height: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  devDividerText: {
-    fontSize: 10, color: '#2A3F5F',
-    letterSpacing: 2, fontWeight: '700',
-  },
-  devBtn: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,180,0,0.3)',
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginBottom: 10,
-    backgroundColor: 'rgba(255,180,0,0.05)',
-  },
-  devBtnText: { color: '#FFB400', fontSize: 13, fontWeight: '600' },
-  clearBtn: {
-    borderWidth: 1,
-    borderColor: 'rgba(255,80,80,0.3)',
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,80,80,0.05)',
-  },
-  clearBtnText: { color: '#FF5050', fontSize: 13, fontWeight: '600' },
 })

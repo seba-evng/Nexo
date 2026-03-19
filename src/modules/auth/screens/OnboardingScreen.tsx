@@ -1,213 +1,191 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
+import LottieView from 'lottie-react-native'
 import { Image, MessageCircle, Phone } from 'lucide-react-native'
 import { useEffect, useRef } from 'react'
 import {
-    Animated, Dimensions, FlatList,
+    Animated,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from 'react-native'
 
-const { width } = Dimensions.get('window')
-
-const slides = [
+const features = [
   {
     Icon: MessageCircle,
-    title: 'Mensajes en\ntiempo real',
-    subtitle: 'Chatea con tus contactos al instante, sin demoras.',
+    title: 'Mensajes en tiempo real',
+    desc: 'Chatea al instante con tus contactos.',
   },
   {
     Icon: Phone,
-    title: 'Llamadas de\nvoz y video',
-    subtitle: 'Conéctate cara a cara desde cualquier lugar.',
+    title: 'Llamadas de voz y video',
+    desc: 'Conéctate cara a cara desde cualquier lugar.',
   },
   {
     Icon: Image,
-    title: 'Comparte\nmomentos',
-    subtitle: 'Envía fotos, audios y videos fácilmente.',
+    title: 'Comparte momentos',
+    desc: 'Envía fotos, audios y videos fácilmente.',
   },
 ]
 
 export default function OnboardingScreen() {
-  const scrollX = useRef(new Animated.Value(0)).current
-  const flatListRef = useRef<FlatList>(null)
   const titleAnim = useRef(new Animated.Value(0)).current
+  const card1Anim = useRef(new Animated.Value(0)).current
+  const card2Anim = useRef(new Animated.Value(0)).current
+  const card3Anim = useRef(new Animated.Value(0)).current
   const buttonAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.timing(titleAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
-      Animated.timing(buttonAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+    Animated.stagger(150, [
+      Animated.timing(titleAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(card1Anim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(card2Anim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(card3Anim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(buttonAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
     ]).start()
   }, [])
 
+  const makeCardStyle = (anim: Animated.Value) => ({
+    opacity: anim,
+    transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }],
+  })
+
+  const cardAnims = [card1Anim, card2Anim, card3Anim]
+
   return (
     <LinearGradient colors={['#080C14', '#0D1520', '#080C14']} style={styles.gradient}>
+      <View style={styles.container}>
 
-      {/* Logo */}
-      <Animated.View style={[styles.logoRow, {
-        opacity: titleAnim,
-        transform: [{ translateY: titleAnim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] }) }]
-      }]}>
-        <View style={styles.logoCircle}>
-          <Text style={styles.logoLetter}>N</Text>
-        </View>
-        <Text style={styles.logoName}>Nexo</Text>
-      </Animated.View>
+        {/* Lottie */}
+        <Animated.View style={[styles.lottieWrapper, {
+          opacity: titleAnim,
+          transform: [{ translateY: titleAnim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] }) }]
+        }]}>
+          <LottieView
+            source={require('../../../../assets/onboarding.json')}
+            autoPlay
+            loop
+            style={styles.lottie}
+          />
+        </Animated.View>
 
-      {/* Slides */}
-      <Animated.FlatList
-        ref={flatListRef}
-        data={slides}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(_, i) => i.toString()}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false }
-        )}
-        renderItem={({ item }) => (
-          <View style={styles.slide}>
-            <View style={styles.iconContainer}>
-              <item.Icon size={52} color="#00E5FF" strokeWidth={1.5} />
-            </View>
-            <Text style={styles.slideTitle}>{item.title}</Text>
-            <Text style={styles.slideSubtitle}>{item.subtitle}</Text>
-          </View>
-        )}
-      />
-
-      {/* Dots */}
-      <View style={styles.dotsRow}>
-        {slides.map((_, i) => {
-          const dotWidth = scrollX.interpolate({
-            inputRange: [(i - 1) * width, i * width, (i + 1) * width],
-            outputRange: [8, 24, 8],
-            extrapolate: 'clamp',
-          })
-          const opacity = scrollX.interpolate({
-            inputRange: [(i - 1) * width, i * width, (i + 1) * width],
-            outputRange: [0.3, 1, 0.3],
-            extrapolate: 'clamp',
-          })
-          return (
-            <Animated.View
-              key={i}
-              style={[styles.dot, { width: dotWidth, opacity }]}
-            />
-          )
-        })}
-      </View>
-
-      {/* Buttons */}
-      <Animated.View style={[styles.buttonsContainer, {
-        opacity: buttonAnim,
-        transform: [{ translateY: buttonAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }]
-      }]}>
-        <TouchableOpacity
-          style={styles.primaryButton}
-          onPress={() => router.push('/register')}
-        >
-          <LinearGradient
-            colors={['#00E5FF', '#0099CC']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.primaryButtonGradient}
-          >
-            <Text style={styles.primaryButtonText}>Crear cuenta</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => router.push('/login')}
-        >
-          <Text style={styles.secondaryButtonText}>
-            Ya tengo cuenta{' '}
-            <Text style={styles.secondaryButtonAccent}>Iniciar sesión</Text>
+        {/* Título */}
+        <Animated.View style={[styles.titleWrapper, {
+          opacity: titleAnim,
+          transform: [{ translateY: titleAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }]
+        }]}>
+          <Text style={styles.title}>
+            Bienvenido a <Text style={styles.titleAccent}>Nexo</Text>
           </Text>
-        </TouchableOpacity>
-      </Animated.View>
+          <Text style={styles.subtitle}>
+            Tu nueva forma de conectar con las personas que importan
+          </Text>
+        </Animated.View>
 
+        {/* Feature cards */}
+        <View style={styles.cards}>
+          {features.map((feature, i) => (
+            <Animated.View key={i} style={[styles.card, makeCardStyle(cardAnims[i])]}>
+              <View style={styles.cardIconWrapper}>
+                <feature.Icon size={22} color="#00E5FF" strokeWidth={1.5} />
+              </View>
+              <View style={styles.cardText}>
+                <Text style={styles.cardTitle}>{feature.title}</Text>
+                <Text style={styles.cardDesc}>{feature.desc}</Text>
+              </View>
+            </Animated.View>
+          ))}
+        </View>
+
+        {/* Botón */}
+        <Animated.View style={{
+          opacity: buttonAnim,
+          transform: [{ translateY: buttonAnim.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }]
+        }}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.replace('/(tabs)')}
+          >
+            <LinearGradient
+              colors={['#00E5FF', '#0099CC']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.buttonGradient}
+            >
+              <Text style={styles.buttonText}>Empezar a chatear</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </Animated.View>
+
+      </View>
     </LinearGradient>
   )
 }
 
 const styles = StyleSheet.create({
-  gradient: { flex: 1, paddingBottom: 48 },
-  logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingTop: 72,
-    marginBottom: 8,
+  gradient: { flex: 1 },
+  container: {
+    flex: 1,
+    paddingHorizontal: 28,
+    paddingTop: 60,
+    paddingBottom: 48,
+    justifyContent: 'space-between',
   },
-  logoCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,229,255,0.12)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(0,229,255,0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoLetter: { fontSize: 20, fontWeight: '700', color: '#00E5FF' },
-  logoName: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: 6 },
-  slide: {
-    width,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 48,
-    paddingVertical: 40,
-  },
-  iconContainer: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: 'rgba(0,229,255,0.08)',
-    borderWidth: 1.5,
-    borderColor: 'rgba(0,229,255,0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 40,
-  },
-  slideTitle: {
-    fontSize: 32,
+  lottieWrapper: { alignItems: 'center' },
+  lottie: { width: 220, height: 220 },
+  titleWrapper: { alignItems: 'center', marginTop: -12 },
+  title: {
+    fontSize: 28,
     fontWeight: '800',
     color: '#FFFFFF',
     textAlign: 'center',
-    lineHeight: 40,
     letterSpacing: -0.5,
-    marginBottom: 16,
+    marginBottom: 10,
   },
-  slideSubtitle: {
-    fontSize: 15,
+  titleAccent: { color: '#00E5FF' },
+  subtitle: {
+    fontSize: 14,
     color: '#4A7A9B',
     textAlign: 'center',
     lineHeight: 22,
+    maxWidth: 280,
   },
-  dotsRow: {
+  cards: { gap: 12 },
+  card: {
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 40,
+    gap: 16,
+    backgroundColor: 'rgba(4,8,16,0.85)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.07)',
+    borderRadius: 16,
+    padding: 16,
   },
-  dot: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#00E5FF',
+  cardIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,229,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(0,229,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonsContainer: { paddingHorizontal: 28, gap: 14 },
-  primaryButton: { borderRadius: 14, overflow: 'hidden' },
-  primaryButtonGradient: { paddingVertical: 16, alignItems: 'center' },
-  primaryButtonText: { color: '#080C14', fontSize: 15, fontWeight: '700', letterSpacing: 0.5 },
-  secondaryButton: { alignItems: 'center', paddingVertical: 8 },
-  secondaryButtonText: { color: '#4A7A9B', fontSize: 14 },
-  secondaryButtonAccent: { color: '#00E5FF', fontWeight: '600' },
+  cardText: { flex: 1 },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 3,
+  },
+  cardDesc: { fontSize: 12, color: '#4A7A9B', lineHeight: 18 },
+  button: { borderRadius: 14, overflow: 'hidden' },
+  buttonGradient: { paddingVertical: 16, alignItems: 'center' },
+  buttonText: {
+    color: '#080C14',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
 })

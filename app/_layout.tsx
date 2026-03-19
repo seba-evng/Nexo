@@ -51,29 +51,29 @@ export default function RootLayout() {
 
     // Manejar deep link cuando la app está abierta
     const handleDeepLink = async ({ url }: { url: string }) => {
-  if (url.includes('access_token') || url.includes('token_hash')) {
-    // Extraer tokens de la URL manualmente
-    const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1])
-    const accessToken = params.get('access_token')
-    const refreshToken = params.get('refresh_token')
+      if (url.includes('access_token') || url.includes('token_hash')) {
+        const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1])
+        const accessToken = params.get('access_token')
+        const refreshToken = params.get('refresh_token')
 
-    if (accessToken && refreshToken) {
-      const { data, error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      })
-      if (data.session) {
-        setUser({
-          id: data.session.user.id,
-          email: data.session.user.email!,
-          created_at: data.session.user.created_at,
-        })
-        loadProfile(data.session.user.id)
-        router.replace('/(tabs)')
+        if (accessToken && refreshToken) {
+          const { data } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          })
+          if (data.session) {
+            setUser({
+              id: data.session.user.id,
+              email: data.session.user.email!,
+              created_at: data.session.user.created_at,
+            })
+            loadProfile(data.session.user.id)
+            // Llevar a Pepetron tras verificar el correo
+            router.replace('/pepetron' as any)
+          }
+        }
       }
     }
-  }
-}
 
     // Manejar deep link cuando la app estaba cerrada
     Linking.getInitialURL().then((url) => {
@@ -90,13 +90,12 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
       <Stack.Screen name="verify-email" />
+      <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="chat/[chatId]" />
-      <Stack.Screen name="onboarding" />
     </Stack>
   )
 }

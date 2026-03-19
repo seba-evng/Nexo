@@ -1,2 +1,2 @@
-import OnboardingScreen from '../src/modules/auth/screens/OnboardingScreen'
+import OnboardingScreen from '../src/modules/auth/screens/SplashScreen'
 export default OnboardingScreen
