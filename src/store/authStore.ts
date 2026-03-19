@@ -1,16 +1,20 @@
 import { create } from 'zustand'
-import { User } from '../types/app.types'
+import { Profile, User } from '../types/app.types'
 
 type AuthStore = {
   user: User | null
+  profile: Profile | null
   isAuthenticated: boolean
   setUser: (user: User | null) => void
+  setProfile: (profile: Profile | null) => void
   logout: () => void
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
+  profile: null,
   isAuthenticated: false,
   setUser: (user) => set({ user, isAuthenticated: !!user }),
-  logout: () => set({ user: null, isAuthenticated: false }),
+  setProfile: (profile) => set({ profile }),
+  logout: () => set({ user: null, profile: null, isAuthenticated: false }),
 }))

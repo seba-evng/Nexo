@@ -4,6 +4,14 @@ export type User = {
   created_at: string
 }
 
+export type Profile = {
+  id: string
+  email: string
+  username: string | null
+  avatar_url: string | null
+  created_at: string
+}
+
 export type Message = {
   id: string
   chat_id: string
