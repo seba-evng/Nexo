@@ -160,7 +160,7 @@ npm run reset-project  # Reinicia el proyecto a su estado inicial
 
 ## 📄 Licencia
 
-Este proyecto es privado. Todos los derechos reservados © 2026 [seba-evng](https://github.com/seba-evng).
+Este proyecto es publico. Todos los derechos reservados © 2026 [seba-evng](https://github.com/seba-evng).
 
 ---
 
