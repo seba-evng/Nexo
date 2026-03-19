@@ -1,2 +1,2 @@
-import SplashScreen from '../../src/modules/auth/screens/SplashScreen'
-export default SplashScreen
+import ChatsScreen from '../../src/modules/auth/screens/ChatsScreen'
+export default ChatsScreen

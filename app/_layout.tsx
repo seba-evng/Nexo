@@ -17,7 +17,6 @@ export default function RootLayout() {
   }
 
   useEffect(() => {
-    // Verificar sesión activa al abrir
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser({
@@ -28,11 +27,10 @@ export default function RootLayout() {
         loadProfile(session.user.id)
         router.replace('/(tabs)')
       } else {
-        router.replace('/')
+        router.replace('/splash' as any)
       }
     })
 
-    // Escuchar cambios de sesión
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         setUser({
@@ -45,11 +43,10 @@ export default function RootLayout() {
       }
       if (event === 'SIGNED_OUT') {
         setUser(null)
-        router.replace('/')
+        router.replace('/splash' as any)
       }
     })
 
-    // Manejar deep link cuando la app está abierta
     const handleDeepLink = async ({ url }: { url: string }) => {
       if (url.includes('access_token') || url.includes('token_hash')) {
         const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1])
@@ -68,14 +65,12 @@ export default function RootLayout() {
               created_at: data.session.user.created_at,
             })
             loadProfile(data.session.user.id)
-            // Llevar a Pepetron tras verificar el correo
             router.replace('/pepetron' as any)
           }
         }
       }
     }
 
-    // Manejar deep link cuando la app estaba cerrada
     Linking.getInitialURL().then((url) => {
       if (url) handleDeepLink({ url })
     })
@@ -90,10 +85,12 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="splash" />
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
       <Stack.Screen name="verify-email" />
-      <Stack.Screen name="onboarding" />
+      <Stack.Screen name="pepetron" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="chat/[chatId]" />
     </Stack>
