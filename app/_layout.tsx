@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking'
 import { router, Stack } from 'expo-router'
 import { useEffect } from 'react'
 import { supabase } from '../src/lib/supabaseClient'
@@ -12,11 +13,11 @@ export default function RootLayout() {
       .select('*')
       .eq('id', userId)
       .single()
-
     if (data) setProfile(data)
   }
 
   useEffect(() => {
+    // Verificar sesión activa al abrir
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser({
@@ -27,33 +28,75 @@ export default function RootLayout() {
         loadProfile(session.user.id)
         router.replace('/(tabs)')
       } else {
-        router.replace('/login')
+        router.replace('/')
       }
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
+    // Escuchar cambios de sesión
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
           created_at: session.user.created_at,
         })
         loadProfile(session.user.id)
-      } else {
+        router.replace('/(tabs)')
+      }
+      if (event === 'SIGNED_OUT') {
         setUser(null)
-        router.replace('/login')
+        router.replace('/')
       }
     })
 
-    return () => subscription.unsubscribe()
+    // Manejar deep link cuando la app está abierta
+    const handleDeepLink = async ({ url }: { url: string }) => {
+  if (url.includes('access_token') || url.includes('token_hash')) {
+    // Extraer tokens de la URL manualmente
+    const params = new URLSearchParams(url.split('#')[1] || url.split('?')[1])
+    const accessToken = params.get('access_token')
+    const refreshToken = params.get('refresh_token')
+
+    if (accessToken && refreshToken) {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      })
+      if (data.session) {
+        setUser({
+          id: data.session.user.id,
+          email: data.session.user.email!,
+          created_at: data.session.user.created_at,
+        })
+        loadProfile(data.session.user.id)
+        router.replace('/(tabs)')
+      }
+    }
+  }
+}
+
+    // Manejar deep link cuando la app estaba cerrada
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink({ url })
+    })
+
+    const linkingSub = Linking.addEventListener('url', handleDeepLink)
+
+    return () => {
+      subscription.unsubscribe()
+      linkingSub.remove()
+    }
   }, [])
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
+      <Stack.Screen name="verify-email" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="chat/[chatId]" />
+      <Stack.Screen name="onboarding" />
     </Stack>
   )
 }

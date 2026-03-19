@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { LinearGradient } from 'expo-linear-gradient'
 import { router } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
@@ -9,6 +10,7 @@ import {
   Text, TextInput, TouchableOpacity,
   View
 } from 'react-native'
+import { supabase } from '../../../lib/supabaseClient'
 import { registerSchema } from '../schemas/authSchema'
 import { register } from '../services/authService'
 
@@ -67,15 +69,19 @@ export default function RegisterScreen() {
     setLoading(true)
     try {
       await register(result.data)
-      Alert.alert('¡Cuenta creada!', 'Revisa tu email para confirmar tu cuenta.', [
-        { text: 'OK', onPress: () => router.replace('/login') }
-      ])
+      router.replace({ pathname: '/verify-email' as any, params: { email } })
     } catch (e: any) {
       shakeForm()
       Alert.alert('Error', e.message)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleClearSession = async () => {
+    await supabase.auth.signOut()
+    await AsyncStorage.clear()
+    router.replace('/')
   }
 
   return (
@@ -89,6 +95,7 @@ export default function RegisterScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Header */}
           <Animated.View style={[styles.header, {
             opacity: headerAnim,
             transform: [{ translateY: headerAnim.interpolate({ inputRange: [0, 1], outputRange: [-20, 0] }) }]
@@ -103,6 +110,7 @@ export default function RegisterScreen() {
             <Text style={styles.subtitle}>Únete a Nexo hoy</Text>
           </Animated.View>
 
+          {/* Form con shake */}
           <Animated.View style={[styles.form, { transform: [{ translateX: shakeAnim }] }]}>
 
             <Animated.View style={[styles.inputWrapper, makeFieldStyle(field1Anim)]}>
@@ -151,6 +159,7 @@ export default function RegisterScreen() {
               )}
             </Animated.View>
 
+            {/* Botón principal */}
             <Animated.View style={{ opacity: buttonAnim, transform: [{ scale: buttonScale }] }}>
               <TouchableOpacity
                 style={[styles.button, loading && styles.buttonDisabled]}
@@ -182,6 +191,33 @@ export default function RegisterScreen() {
               </TouchableOpacity>
             </Animated.View>
 
+            {/* Divisor dev */}
+            <Animated.View style={[styles.devDivider, { opacity: buttonAnim }]}>
+              <View style={styles.devDividerLine} />
+              <Text style={styles.devDividerText}>DEV</Text>
+              <View style={styles.devDividerLine} />
+            </Animated.View>
+
+            {/* Botón saltar verificación */}
+            <Animated.View style={{ opacity: buttonAnim }}>
+              <TouchableOpacity
+                style={styles.devBtn}
+                onPress={() => router.replace('/onboarding' as any)}
+              >
+                <Text style={styles.devBtnText}>⚠️ Saltar verificación</Text>
+              </TouchableOpacity>
+            </Animated.View>
+
+            {/* Botón limpiar sesión */}
+            <Animated.View style={{ opacity: buttonAnim }}>
+              <TouchableOpacity
+                style={styles.clearBtn}
+                onPress={handleClearSession}
+              >
+                <Text style={styles.clearBtnText}>⚠️ Limpiar sesión</Text>
+              </TouchableOpacity>
+            </Animated.View>
+
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -192,7 +228,12 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   gradient: { flex: 1 },
   container: { flex: 1 },
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 28, paddingVertical: 48 },
+  scroll: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 48,
+  },
   header: { alignItems: 'center', marginBottom: 40 },
   backBtn: { alignSelf: 'flex-start', marginBottom: 28 },
   backText: { color: '#00E5FF', fontSize: 14, fontWeight: '600' },
@@ -204,13 +245,20 @@ const styles = StyleSheet.create({
   },
   logoText: { fontSize: 26, fontWeight: '700', color: '#00E5FF' },
   title: { fontSize: 26, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 },
-  subtitle: { fontSize: 13, color: '#2A5F7F', marginTop: 6, letterSpacing: 2, textTransform: 'uppercase' },
+  subtitle: {
+    fontSize: 13, color: '#2A5F7F', marginTop: 6,
+    letterSpacing: 2, textTransform: 'uppercase',
+  },
   form: {
-    backgroundColor: 'rgba(255,255,255,0.03)', borderRadius: 24,
-    padding: 28, borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)',
+    backgroundColor: 'rgba(4,8,16,0.85)',
+    borderRadius: 24, padding: 28,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.07)',
   },
   inputWrapper: { marginBottom: 18 },
-  label: { fontSize: 12, color: '#4A7A9B', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8, fontWeight: '600' },
+  label: {
+    fontSize: 12, color: '#4A7A9B', letterSpacing: 1.5,
+    textTransform: 'uppercase', marginBottom: 8, fontWeight: '600',
+  },
   input: {
     backgroundColor: 'rgba(255,255,255,0.05)', borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.08)', borderRadius: 14,
@@ -225,4 +273,38 @@ const styles = StyleSheet.create({
   loginLink: { alignItems: 'center', marginTop: 20 },
   loginText: { color: '#4A7A9B', fontSize: 14 },
   loginTextAccent: { color: '#00E5FF', fontWeight: '600' },
+  devDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 24,
+    marginBottom: 14,
+  },
+  devDividerLine: {
+    flex: 1, height: 1,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+  },
+  devDividerText: {
+    fontSize: 10, color: '#2A3F5F',
+    letterSpacing: 2, fontWeight: '700',
+  },
+  devBtn: {
+    borderWidth: 1,
+    borderColor: 'rgba(255,180,0,0.3)',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginBottom: 10,
+    backgroundColor: 'rgba(255,180,0,0.05)',
+  },
+  devBtnText: { color: '#FFB400', fontSize: 13, fontWeight: '600' },
+  clearBtn: {
+    borderWidth: 1,
+    borderColor: 'rgba(255,80,80,0.3)',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,80,80,0.05)',
+  },
+  clearBtnText: { color: '#FF5050', fontSize: 13, fontWeight: '600' },
 })
