@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "223099299002",
+    "project_id": "nexo-2cb13",
+    "storage_bucket": "nexo-2cb13.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:223099299002:android:0df904685e8b05b74f8e83",
+        "android_client_info": {
+          "package_name": "com.sebacrn.Nexo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQM6fTP27WL7rjmiIQ072fWxN_sbn6OrM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,12 +2,12 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { useLocalSearchParams } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
 import {
-    Animated,
-    FlatList,
-    KeyboardAvoidingView, Platform,
-    StyleSheet, Text,
-    TextInput, TouchableOpacity,
-    View
+  Animated,
+  FlatList,
+  KeyboardAvoidingView, Platform,
+  StyleSheet, Text,
+  TextInput, TouchableOpacity,
+  View
 } from 'react-native'
 import { supabase } from '../../../lib/supabaseClient'
 import { MessageBubble } from '../components/MessageBubble'
@@ -54,7 +54,7 @@ export default function ChatScreen() {
           data={messages}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <MessageBubble message={item} isOwn={item.sender_id === myId} />
+            <MessageBubble message={item} isOwn={item.sender_id === myId} isDark={false} colors={undefined} />
           )}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}

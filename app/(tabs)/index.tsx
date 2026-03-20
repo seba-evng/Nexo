@@ -1,2 +1,2 @@
-import ChatsScreen from '../../src/modules/auth/screens/ChatScreen'
-export default ChatsScreen
+import ChatsListScreen from '../../src/modules/chat/screens/ChatsListScreen'
+export default ChatsListScreen
