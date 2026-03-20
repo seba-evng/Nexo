@@ -5,9 +5,11 @@ import { Message } from '../../../types/app.types'
 type Props = {
   message: Message
   isOwn: boolean
+  isDark: boolean
+  colors: any
 }
 
-export function MessageBubble({ message, isOwn }: Props) {
+export function MessageBubble({ message, isOwn, isDark, colors: c }: Props) {
   const anim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
@@ -31,11 +33,16 @@ export function MessageBubble({ message, isOwn }: Props) {
         ]
       }
     ]}>
-      <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
-        <Text style={[styles.text, isOwn ? styles.textOwn : styles.textOther]}>
+      <View style={[
+        styles.bubble,
+        isOwn
+          ? styles.bubbleOwn
+          : [styles.bubbleOther, { backgroundColor: c.surface, borderColor: c.border }]
+      ]}>
+        <Text style={[styles.text, isOwn ? styles.textOwn : { color: c.text }]}>
           {message.content}
         </Text>
-        <Text style={[styles.time, isOwn ? styles.timeOwn : styles.timeOther]}>
+        <Text style={[styles.time, isOwn ? styles.timeOwn : { color: c.textFaint }]}>
           {new Date(message.created_at).toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
@@ -50,21 +57,20 @@ const styles = StyleSheet.create({
   wrapper: { marginVertical: 3, marginHorizontal: 12 },
   wrapperOwn: { alignItems: 'flex-end' },
   wrapperOther: { alignItems: 'flex-start' },
-  bubble: { maxWidth: '75%', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 10 },
+  bubble: {
+    maxWidth: '75%', borderRadius: 18,
+    paddingHorizontal: 14, paddingVertical: 10,
+  },
   bubbleOwn: {
     backgroundColor: '#00E5FF',
     borderBottomRightRadius: 4,
   },
   bubbleOther: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.06)',
     borderBottomLeftRadius: 4,
   },
   text: { fontSize: 15, lineHeight: 20 },
   textOwn: { color: '#080C14' },
-  textOther: { color: '#FFFFFF' },
   time: { fontSize: 10, marginTop: 4, alignSelf: 'flex-end' },
   timeOwn: { color: 'rgba(8,12,20,0.5)' },
-  timeOther: { color: 'rgba(255,255,255,0.35)' },
 })

@@ -1,6 +1,7 @@
 import * as Linking from 'expo-linking'
 import { router, Stack } from 'expo-router'
 import { useEffect } from 'react'
+import { registerForPushNotifications } from '../src/lib/notificationsService'
 import { supabase } from '../src/lib/supabaseClient'
 import { useAuthStore } from '../src/store/authStore'
 
@@ -14,6 +15,8 @@ export default function RootLayout() {
       .eq('id', userId)
       .single()
     if (data) setProfile(data)
+
+    await registerForPushNotifications(userId)
   }
 
   useEffect(() => {
@@ -65,7 +68,7 @@ export default function RootLayout() {
               created_at: data.session.user.created_at,
             })
             loadProfile(data.session.user.id)
-            router.replace('/pepetron' as any)
+            router.replace('/onboarding' as any)
           }
         }
       }
@@ -90,8 +93,10 @@ export default function RootLayout() {
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />
       <Stack.Screen name="verify-email" />
-      <Stack.Screen name="pepetron" />
+      <Stack.Screen name="onboarding" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="settings" />
+      <Stack.Screen name="new-chat" />
       <Stack.Screen name="chat/[chatId]" />
     </Stack>
   )
